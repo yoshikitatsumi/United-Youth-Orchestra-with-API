@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "type": "mssql",
+      "connectionId": "United_Youth_Orchestra_with_APIContext"
+    }
+  }
+}

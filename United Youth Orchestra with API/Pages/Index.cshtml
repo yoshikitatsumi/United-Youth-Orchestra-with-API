@@ -1,0 +1,502 @@
+﻿@page
+@{}
+<!DOCTYPE html>
+
+<!--  First JQuery Template   -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>Members</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+    <div>
+        <img src="~/images/UYOLogo2.jpg" />
+        <h1 class="display-4" style="color:darkgreen">Welcome!</h1>
+        <h5>
+            On 14th Feburary, 2003, comprising around 30 members with ages from ~11 to ~23 years (intermediate school age and up), the United Youth Orchestra (UYO) was formed.
+        </h5>
+        <p>
+            Since its formation, the orchestra has become the premier youth orchestra of the Waikato region, performing two or three concerts each year.
+            Our major concert, performed in the WEL Energy Trust Academy of Performing Arts at the University of Waikato in Hamilton, is usually in mid-October.
+            We travelled to New Plymouth 19-20th September 2009 to take part in a joint concert with the Taranaki Youth Orchestra (TYO).
+            We went to Te Puke (Bay of Plenty) in 2006, 2010 and in 2012 and to New Plymouth in 2005, 2009 and in 2013 where we put on a joint concert with the TYO.
+            TYO came to Hamilton to take part in concerts with us in 2003, 2007 and in 2011.
+            In 2019, United Youth Orchestras and other three Orchestras had been together for their first ever combined camp at the Cambridge Avantidrome</a>.
+        </p>
+    </div>
+    <div>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-warning">
+            <a class="navbar-brand" href="#">Members</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <button class="btn btn-outline-dark" data-toggle="modal" data-target="#addMembers">Add New member</button>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row" id="allMembers">
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script>
+        var uri = 'api/Member';
+        $(document).ready(function () {
+            // Gets all Members
+            $.getJSON(uri)
+                .done(function (data) {
+                    $("#MembersTemplate").tmpl(data).appendTo("#allMembers");
+                });
+        });
+        function getAllMembers() {
+            $.getJSON(uri)
+                .done(function (data) {
+                    $("#allMembers").text("");
+                    $("#MembersTemplate").tmpl(data).appendTo("#allMembers");
+                });
+        }
+        function addMembers() {
+            var _name = $('#_name').val();
+            var _telephone = parseInt($('#_telephone').val());
+            var _email = $('#_email').val();
+            var _dob = new Date($('#_dob').val());
+            var _schoolyear = parseInt($('#_schoolyear').val());
+            var _musicInst = $('#_musicInst').val();
+
+            var Member = {
+                name: _name,
+                telephone: _telephone,
+                email: _email,
+                dob: _dob,
+                schoolyear: _schoolyear,
+                musicInst: _musicInst
+            };
+            $.ajax({
+                type: "POST",
+                url: "/api/AddMember",
+                data: JSON.stringify(Member),
+                contentType: "application/json; charset=utf-8"
+            }).done(function (response) {
+                $("#result").html("Success");
+                getAllMembers();
+            }).fail(function (jqXHR, textStatus) {
+                $("#result").html("An error occured when Adding the member record.");
+            });
+        }
+        function updateMember() {
+            var _name = $('#_name').val();
+            var _telephone = parseInt($('#_telephone').val());
+            var _email = $('#_email').val();
+            var _dob = new Date($('#_dob').val());
+            var _schoolyear = parseInt($('#_schoolyear').val());
+            var _musicInst = $('#_musicInst').val();
+
+            var Member = {
+                name: _name,
+                telephone: _telephone,
+                email: _email,
+                dob: _dob,
+                schoolyear: _schoolyear,
+                musicInst: _musicInst,
+            };
+
+            $.ajax({
+                type: "PUT",
+                url: "/api/UpdateMember",
+                data: JSON.stringify(Member),
+                contentType: "application/json; charset=utf-8"
+            }).done(function (response) {
+                $("#resultUpdate").html("Success");
+                getAllMembers();
+            }).fail(function (jqXHR, textStatus) {
+                $("#resultUpdate").html("An error occured When updating Member");
+            });;
+        }
+        function remove(id) {
+            var yes = confirm("Are you sure you want to delete this Member?");
+            if (yes) {
+                $.ajax({
+                    type: "DELETE",
+                    url: "~/api/DeleteMember",
+                }).done(function (response) {
+                    getAllMembers();
+                });
+            }
+        }
+        function getMemberForUpdate(id) {
+            $.ajax({
+                type: "GET",
+                url: uri + "/" + id,
+                contentType: "application/json"
+            }).done(function (response) {
+                $('#_id').val(response.id);
+                $('#_name').val(response.name);
+                $('#_telephone').val(response.telephone);
+                $('#_email').val(response.email);
+                $('#_dob').val(response.dob);
+                $('#_schoolyear').val(response.schoolyear);
+                $('#_musicInst').val(response.musicInst);
+
+            });
+        }
+    </script>
+    <script id="MembersTemplate" type="text/x-jquery-tmpl">
+        <div class="col-lg-3" style="margin:10px;">
+            <div class="empd empd text-white bg-dark border-warning mb-3" style="width: 18rem; padding:20px">
+                <div class="empd-body">
+                    <h5 class="empd-title">Member: ${member}</h5>
+                    <p class="empd-text">name : ${name}</p>
+                    <p class="empd-text">telephone :  ${telephone}</p>
+                    <p class="empd-text">email : ${email}</p>
+                    <p class="empd-text">dob :  ${dob}</p>
+                    <p class="empd-text">schoolyear : ${schoolyear}</p>
+                    <p class="empd-text">musicInst :  ${musicInst}</p>
+
+                </div>
+                <span>
+                    <button class="btn btn-primary" onclick="getMemberForUpdate('${Member_Id}')" data-toggle="modal" data-target="#updateMember">Update</button>
+                    <a href="#" class="btn btn-danger" onclick="remove('${member_Id}')">Delete</a>
+                </span>
+            </div>
+        </div>
+    </script>
+    <div class="modal" tabindex="-1" role="dialog" id="addMembers">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Member</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="_name" aria-describedby="nameHelp" placeholder="Member Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="telephone">Phone number</label>
+                            <input type="number" class="form-control" id="_telephone" aria-describedby="telephoneHelp" placeholder="Phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="text" class="form-control" id="_email" aria-describedby="emailHelp" placeholder="Email">
+                        </div>
+                        <div class="form-group">
+                            <label for="dob">DOB (yyyy/mm/dd)</label>
+                            <input type="date" class="form-control" id="_dob" aria-describedby="dobHelp" placeholder="DOB">
+                        </div>
+                        <div class="form-group">
+                            <label for="schoolyear">School year</label>
+                            <input type="number" class="form-control" id="_schoolyear" aria-describedby="schoolyearHelp" placeholder="School year">
+                        </div>
+                        <div class="form-group">
+                            <label for="musicInst">Music Instrument</label>
+                            <input type="text" class="form-control" id="_musicInst" aria-describedby="musicInstHelp" placeholder="Music Instrument">
+                        </div>
+
+
+                        <div class="form-group" id="result">
+                        </div>
+                        <button type="button" onclick="addMembers()" class="btn btn-primary">Add Members</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" tabindex="-1" role="dialog" id="updateMember">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Member</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <input type="hidden" class="form-control" id="_id" aria-describedby="emailHelp">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="_name" aria-describedby="nameHelp" placeholder="Member Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="telephone">Phone number</label>
+                            <input type="number" class="form-control" id="_telephone" aria-describedby="telephoneHelp" placeholder="Phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="text" class="form-control" id="_email" aria-describedby="emailHelp" placeholder="Email">
+                        </div>
+                        <div class="form-group">
+                            <label for="dob">DOB (yyyy/mm/dd)</label>
+                            <input type="date" class="form-control" id="_dob" aria-describedby="dobHelp" placeholder="DOB">
+                        </div>
+                        <div class="form-group">
+                            <label for="schoolyear">School year</label>
+                            <input type="number" class="form-control" id="_schoolyear" aria-describedby="schoolyearHelp" placeholder="School year">
+                        </div>
+                        <div class="form-group">
+                            <label for="musicInst">Music Instrument</label>
+                            <input type="text" class="form-control" id="_musicInst" aria-describedby="musicInstHelp" placeholder="Music Instrument">
+                        </div>
+
+                        <div class="form-group" id="resultUpdate">
+                        </div>
+                        <button type="button" onclick="updateMember()" class="btn btn-primary">Update Record</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <img src="~/images/18Oct2020a.jpg" />
+
+    </div>
+</body>
+</html>
+    
+<!-- Second JQuery Template   -->
+
+@*<html>
+<head>
+    <title>SmartIT member Manager</title>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function () {
+            getempList();
+        });
+        var emp = {
+            id: 0,
+            name: "",
+            telephone: 0,
+            email: "",
+            dob: "",
+            schoolyear: 0,
+            musicInst: ""
+        }
+        // Get all members to display
+        function getempList() {
+            // Call Web API to get a list of members
+            $.ajax({
+                url: '/api/Member',
+                type: 'GET',
+                dataType: 'json',
+                success: function (emps) {
+                    empListSuccess(emps);
+                },
+                error: function (request, message, error) {
+                    handleException(request, message, error);
+                }
+            });
+        }
+        // Display all members returned from Web API call
+        function empListSuccess(emps) {
+            // Iterate over the collection of data
+            $("#empTable tbody").remove();
+            $.each(emps, function (index, emp) {
+                // Add a row to the member table
+                empAddRow(emp);
+            });
+        }
+        // Add member row to <table>
+        function empAddRow(emp) {
+            // First check if a <tbody> tag exists, add one if not
+            if ($("#empTable tbody").length == 0) {
+                $("#empTable").append("<tbody></tbody>");
+            }
+            // Append row to <table>
+            $("#empTable tbody").append(
+                empBuildTableRow(emp));
+        }
+        // Build a <tr> for a row of table data
+        function empBuildTableRow(emp) {
+            var newRow = "<tr>" +
+                "<td>" + emp.id + "</td>" +
+                "<td><input   class='input-name' type='text' value='" + emp.name + "'/></td>" +
+                "<td><input   class='input-telephone' type='text' value='" + emp.telephone + "'/></td>" +
+                "<td><input   class='input-email' type='text' value='" + emp.email + "'/></td>" +
+                "<td><input   class='input-dob' type='text' value='" + emp.dob + "'/></td>" +
+                "<td><input   class='input-schoolyear' type='text' value='" + emp.schoolyear + "'/></td>" +
+                "<td><input   class='input-musicInst' type='text' value='" + emp.musicInst + "'/></td>" +
+                "<td>" +
+                "<button type='button' " +
+                "onclick='empUpdate(this);' " +
+                "class='btn btn-default' " +
+                "data-id='" + emp.id + "' " +
+                "data-name='" + emp.name + "' " +
+                "data-telephone='" + emp.telephone + "' " +
+                "data-email='" + emp.email + "' " +
+                "data-dob='" + emp.dob + "' " +
+                "data-schoolyear='" + emp.schoolyear + "' " +
+                "data-musicInst='" + emp.musicInst + "' " +
+                ">" +
+                "<span class='glyphicon glyphicon-edit' /> Update" +
+                "</button> " +
+                " <button type='button' " +
+                "onclick='empDelete(this);'" +
+                "class='btn btn-default' " +
+                "data-id='" + emp.id + "'>" +
+                "<span class='glyphicon glyphicon-remove' />Delete" +
+                "</button>" +
+                "</td>" +
+                "</tr>";
+            return newRow;
+        }
+        function onAddemp(item) {
+            var options = {};
+            options.url = "/api/AddMember";
+            options.type = "POST";
+            var obj = emp;
+            obj.name = $("#name").val();
+            obj.telephone = parseInt($("#telephone").val());
+            obj.email = $("#email").val();
+            obj.dob = new Date($("#dob").val());
+            obj.schoolyear = parseInt($("#schoolyear").val());
+            obj.musicInst = $("#musicInst").val();
+            console.dir(obj);
+            console.dir(item);
+            options.data = JSON.stringify(obj);
+            options.contentType = "application/json";
+            options.dataType = "html";
+            options.success = function (msg) {
+                getempList();
+                $("#msg").html(msg);
+            },
+                options.error = function () {
+                    $("#msg").html("Error while calling the Web API!");
+                };
+            $.ajax(options);
+        }
+        function empUpdate(item) {
+            var id = $(item).data("id");
+            var options = {};
+            options.url = "/api/UpdateMember"
+            options.type = "PUT";
+            var obj = emp;
+            obj.id = $(item).data("id");
+            obj.name = $(".input-name", $(item).parent().parent()).val();
+            obj.telephone = parseInt($(".input-telephone", $(item).parent().parent()).val());
+            obj.email = $(".input-email", $(item).parent().parent()).val();
+            obj.dob = new Date(($(".input-dob", $(item).parent().parent()).val()));
+            obj.schoolyear = parseInt($(".input-schoolyear", $(item).parent().parent()).val());
+            obj.musicInst = $(".input-musicInst", $(item).parent().parent()).val();
+            console.dir(obj);
+            options.data = JSON.stringify(obj);
+            options.contentType = "application/json";
+            options.dataType = "html";
+            options.success = function (msg) {
+                $("#msg").html(msg);
+            };
+            options.error = function () {
+                $("#msg").html("Error while calling the Web API!");
+            };
+            $.ajax(options);
+        }
+        function empDelete(item) {
+            var id = $(item).data("id");
+            var options = {};
+            options.url = "/api/DeleteMember/"
+                + id;
+            options.type = "DELETE";
+            options.dataType = "html";
+            options.success = function (msg) {
+                console.log('msg= ' + msg);
+                $("#msg").html(msg);
+                getempList();
+            };
+            options.error = function () {
+                $("#msg").html("Error while calling the Web API!");
+            };
+            $.ajax(options);
+        }
+        // Handle exceptions from AJAX calls
+        function handleException(request, message, error) {
+            var msg = "";
+            msg += "Code: " + request.status + "\n";
+            msg += "Text: " + request.statusText + "\n";
+            if (request.responseJSON != null) {
+                msg += "Message" + request.responseJSON.Message + "\n";
+            }
+            alert(msg);
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <img src="~/images/UYOLogo2.jpg" />
+        <h1 class="display-4" style="color:darkgreen">Welcome!</h1>
+        <h5>
+            On 14th Feburary, 2003, comprising around 30 members with ages from ~11 to ~23 years (intermediate school age and up), the United Youth Orchestra (UYO) was formed.
+        </h5>
+        <p>
+            Since its formation, the orchestra has become the premier youth orchestra of the Waikato region, performing two or three concerts each year.
+            Our major concert, performed in the WEL Energy Trust Academy of Performing Arts at the University of Waikato in Hamilton, is usually in mid-October.
+            We travelled to New Plymouth 19-20th September 2009 to take part in a joint concert with the Taranaki Youth Orchestra (TYO).
+            We went to Te Puke (Bay of Plenty) in 2006, 2010 and in 2012 and to New Plymouth in 2005, 2009 and in 2013 where we put on a joint concert with the TYO.
+            TYO came to Hamilton to take part in concerts with us in 2003, 2007 and in 2011.
+            In 2019, United Youth Orchestras and other three Orchestras had been together for their first ever combined camp at the Cambridge Avantidrome</a>.
+        </p>
+    </div>
+    <h2>Members Listing</h2>
+    <form>
+        <table id="empTable" style="border: 1px solid #999" cellpadding="1">
+            <thead>
+                <tr>
+                    <td> ID </td>
+                    <td> Name </td>
+                    <td> Phone Number </td>
+                    <td> Email </td>
+                    <td> DOB (yyyy/mm/dd) </td>
+                    <td> School year </td>
+                    <td> Music Instrument </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input id="name" type="text" /></td>
+                    <td><input id="telephone" type="text" /></td>
+                    <td><input id="email" type="text" /></td>
+                    <td><input id="dob" type="text" /></td>
+                    <td><input id="schoolyear" type="text" /></td>
+                    <td><input id="musicInst" type="text" /></td>
+
+                    <td><input type="button" id="insert" value="Insert" onclick='onAddemp(this)' /></td>
+            </thead>
+        </table>
+        <br />
+        <div id="msg"></div>
+    </form>
+
+    <div>
+        <img src="~/images/18Oct2020a.jpg" />
+
+    </div>
+
+
+</body>
+</html>*@
