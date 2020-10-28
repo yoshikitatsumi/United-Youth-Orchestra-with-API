@@ -108,7 +108,7 @@
                 email: _email,
                 dob: _dob,
                 schoolyear: _schoolyear,
-                musicInst: _musicInst,
+                musicInst: _musicInst
             };
 
             $.ajax({
@@ -128,7 +128,7 @@
             if (yes) {
                 $.ajax({
                     type: "DELETE",
-                    url: "~/api/DeleteMember",
+                    url: "/api/DeleteMember",
                 }).done(function (response) {
                     getAllMembers();
                 });
