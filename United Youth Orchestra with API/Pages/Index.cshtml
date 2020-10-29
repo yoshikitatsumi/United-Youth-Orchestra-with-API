@@ -380,8 +380,6 @@
                 obj.dob = new Date($("#dob").val());
                 obj.schoolyear = parseInt($("#schoolyear").val());
                 obj.musicInst = $("#musicInst").val();
-                console.dir(obj);
-                console.dir(item);
                 options.data = JSON.stringify(obj);
                 options.contentType = "application/json";
                 options.dataType = "html";
@@ -407,7 +405,6 @@
                 obj.dob = new Date(($(".input-dob", $(item).parent().parent()).val()));
                 obj.schoolyear = parseInt($(".input-schoolyear", $(item).parent().parent()).val());
                 obj.musicInst = $(".input-musicInst", $(item).parent().parent()).val();
-                console.dir(obj);
                 options.data = JSON.stringify(obj);
                 options.contentType = "application/json";
                 options.dataType = "html";
@@ -427,7 +424,6 @@
                 options.type = "DELETE";
                 options.dataType = "html";
                 options.success = function (msg) {
-                    console.log('msg= ' + msg);
                     $("#msg").html(msg);
                     getempList();
                 };
